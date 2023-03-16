@@ -1,15 +1,15 @@
 import WrongNetworkMessage from '../components/WrongNetworkMessage'
 import ConnectWalletButton from '../components/ConnectWalletButton'
 import TodoList from '../components/TodoList'
-import { TaskContractAddress } from '../config.js'
-import TaskAbi from '../../backend/build/contracts/TaskContract.json'
+import { PatientContractAddress } from '../config.js'
+import PatientAbi from '../../backend/build/contracts/PatientContract.json'
 import { ethers } from 'ethers'
 import { useState, useEffect } from 'react'
 /* 
-const tasks = [
-  { id: 0, taskText: 'clean', isDeleted: false }, 
-  { id: 1, taskText: 'food', isDeleted: false }, 
-  { id: 2, taskText: 'water', isDeleted: true }
+const patients = [
+  { id: 0, patientText: 'clean', isDeleted: false }, 
+  { id: 1, patientText: 'food', isDeleted: false }, 
+  { id: 2, patientText: 'water', isDeleted: true }
 ]
 */
 
@@ -17,12 +17,13 @@ export default function Home() {
   const [correctNetwork, setCorrectNetwork] = useState(false)
   const [isUserLoggedIn, setIsUserLoggedIn] = useState(false)
   const [currentAccount, setCurrentAccount] = useState('')
-  const [input, setInput] = useState('')
-  const [tasks, setTasks] = useState([])
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [patients, setPatients] = useState([])
 
   useEffect(() => {
     connectWallet()
-    getAllTasks()
+    getAllPatients()
   }, [])
   
   // Calls Metamask to connect wallet on clicking Connect Wallet button
@@ -54,20 +55,20 @@ export default function Home() {
     }
   }
 
-  // Just gets all the tasks from the contract
-  const getAllTasks = async () => {
+  // Just gets all the patients from the contract
+  const getAllPatients = async () => {
     try {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner()
-        const TaskContract = new ethers.Contract(
-          TaskContractAddress,
-          TaskAbi.abi,
+        const PatientContract = new ethers.Contract(
+          PatientContractAddress,
+          PatientAbi.abi,
           signer
         )
-        let allTasks = await TaskContract.getMyTasks()
-        console.log(allTasks)
-        setTasks(allTasks)
+        let allPatients = await PatientContract.getMyPatients()
+        console.log(allPatients)
+        setPatients(allPatients)
       } else {
         console.log('ethereum object does not exist!')
       }
@@ -76,12 +77,13 @@ export default function Home() {
     }
   }
 
-  // Add tasks from front-end onto the blockchain
-  const addTask = async e => {
+  // Add patients from front-end onto the blockchain
+  const addPatient = async e => {
     e.preventDefault()
 
-    let task = {
-      taskText: input,
+    let patient = {
+      firstName: firstName,
+      lastName: lastName,
       isDeleted: false
     }
 
@@ -90,16 +92,16 @@ export default function Home() {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner()
-        const TaskContract = new ethers.Contract(
-          TaskContractAddress,
-          TaskAbi.abi,
+        const PatientContract = new ethers.Contract(
+          PatientContractAddress,
+          PatientAbi.abi,
           signer
         )
 
-        TaskContract.addTask(task.taskText, task.isDeleted)
+        PatientContract.addPatient(patient.firstName, patient.lastName, patient.isDeleted)
         .then(res => {
-          setTasks([...tasks, task])
-          console.log('Added task')
+          setPatients([...patients, patient])
+          console.log('Added patient')
         })
         .catch(err => {
           console.log(err)
@@ -110,26 +112,27 @@ export default function Home() {
     } catch(error){
       console.log(error)
     }
-    setInput('')
+    setFirstName('')
+    setLastName('')
   }
 
-  // Remove tasks from front-end by filtering it out on our "back-end" / blockchain smart contract
-  const deleteTask = key => async () => {
+  // Remove patients from front-end by filtering it out on our "back-end" / blockchain smart contract
+  const deletePatient = key => async () => {
     try {
       if (ethereum) {
         const provider = new ethers.providers.Web3Provider(ethereum)
         const signer = provider.getSigner()
-        const TaskContract = new ethers.Contract(
-          TaskContractAddress,
-          TaskAbi.abi,
+        const PatientContract = new ethers.Contract(
+          PatientContractAddress,
+          PatientAbi.abi,
           signer
         )
 
-        const deleteTaskTx = await TaskContract.deleteTask(key, true)
-        console.log('succesfully deleted', deleteTaskTx)
+        const deletePatientTx = await PatientContract.deletePatient(key, true)
+        console.log('succesfully deleted', deletePatientTx)
         
-        let allTasks = await TaskContract.getMyTasks()
-        setTasks(allTasks)
+        let allPatients = await PatientContract.getMyPatients()
+        setPatients(allPatients)
       } else {
         console.log('ethereum object does not exist!')
       }
@@ -141,7 +144,7 @@ export default function Home() {
   return (
     <div className='bg-[#97b5fe] h-screen w-screen flex justify-center py-6'>
       {!isUserLoggedIn ? <ConnectWalletButton connectWallet={connectWallet}/> :
-        'is this the correct network?' ? <TodoList tasks={tasks} input={input} setInput={setInput} addTask={addTask} deleteTask={deleteTask}/> : 
+        'is this the correct network?' ? <TodoList patients={patients} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} addPatient={addPatient} deletePatient={deletePatient}/> : 
       <WrongNetworkMessage />}
     </div>
   )

@@ -144,7 +144,15 @@ export default function Home() {
   return (
     <div className='bg-[#97b5fe] h-screen w-screen flex justify-center py-6'>
       {!isUserLoggedIn ? <ConnectWalletButton connectWallet={connectWallet}/> :
-        'is this the correct network?' ? <TodoList patients={patients} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} addPatient={addPatient} deletePatient={deletePatient}/> : 
+        'is this the correct network?' ? <TodoList 
+          patients={patients} 
+          firstName={firstName} 
+          setFirstName={setFirstName} 
+          lastName={lastName} 
+          setLastName={setLastName} 
+          addPatient={addPatient} 
+          deletePatient={deletePatient}
+        /> : 
       <WrongNetworkMessage />}
     </div>
   )

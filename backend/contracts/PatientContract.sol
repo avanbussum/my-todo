@@ -23,7 +23,6 @@ contract PatientContract {
     patients.push(Patient(patientId, firstName, lastName, isDeleted));
     patientToOwner[patientId] = msg.sender;
     emit AddPatient(msg.sender, patientId);
-    
   }
   // get patients that are mine and not deleted
   function getMyPatients() external view returns (Patient[] memory){
@@ -49,6 +48,4 @@ contract PatientContract {
       emit DeletePatient(patientId, isDeleted);
     }
   }
-
-  
 }

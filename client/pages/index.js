@@ -20,10 +20,13 @@ export default function Home() {
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [patients, setPatients] = useState([])
+  const [eventLog, setEventLog] = useState([])
+
 
   useEffect(() => {
     connectWallet()
     getAllPatients()
+    getEvents()
   }, [])
   
   // Calls Metamask to connect wallet on clicking Connect Wallet button
@@ -77,10 +80,51 @@ export default function Home() {
     }
   }
 
+  // Get all the Add events from the event log
+  const getEvents = async () => {
+    try {
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum)
+        const signer = provider.getSigner()
+        const PatientContract = new ethers.Contract(
+          PatientContractAddress,
+          PatientAbi.abi,
+          signer
+        )
+        
+        // Filter by AddPatient Events
+        const filter = PatientContract.filters.AddPatient();
+        const events = await PatientContract.queryFilter(filter)
+        console.log(events)
+        const inter = await new ethers.utils.Interface(PatientAbi.abi)
+        
+        const parsedLogs = events.map(log => {
+           return inter.parseLog(log).args
+        })
+
+        //let tester = awaitprovider.getLogs()
+        //console.log('testy',tester)
+
+        setEventLog(parsedLogs)
+        console.log('OFFICIAL LOGS:', parsedLogs)
+        
+        PatientContract.on("AddPatient", (recipient, patientId) => {
+          console.log("New AddPatient event with the arguments:")
+          console.log(recipient, patientId)
+        })
+
+      } else {
+        console.log('ethereum object does not exist!')
+      }
+    }catch(error){
+      console.log(error)
+    }
+  }
+
   // Add patients from front-end onto the blockchain
   const addPatient = async e => {
     e.preventDefault()
-
+    getEvents()
     let patient = {
       firstName: firstName,
       lastName: lastName,

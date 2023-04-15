@@ -5,14 +5,15 @@ pragma solidity >=0.4.22 <0.9.0;
 // Patient: { id: 0, patientText: 'clean', isDeleted: false }, 
 
 contract PatientContract {
-  event AddPatient(address recipient, uint patientId);
-  event DeletePatient(uint patientId, bool isDeleted);
+  event AddPatient(address recipient, uint patientId, string firstName, string lastName, bool isDeleted, uint256 timestamp);
+  event DeletePatient(address recipient, uint patientId, string firstName, string lastName, bool isDeleted, uint256 timestamp);
 
   struct Patient {
     uint id;
     string firstName;
     string lastName;
     bool isDeleted;
+    uint timestamp;
   }
 
   Patient[] private patients;
@@ -20,9 +21,9 @@ contract PatientContract {
   
   function addPatient(string memory firstName, string memory lastName, bool isDeleted) external {
     uint patientId = patients.length;
-    patients.push(Patient(patientId, firstName, lastName, isDeleted));
+    patients.push(Patient(patientId, firstName, lastName, isDeleted, block.timestamp));
     patientToOwner[patientId] = msg.sender;
-    emit AddPatient(msg.sender, patientId);
+    emit AddPatient(msg.sender, patientId, firstName, lastName, isDeleted, block.timestamp);
   }
   // get patients that are mine and not deleted
   function getMyPatients() external view returns (Patient[] memory){
@@ -45,7 +46,7 @@ contract PatientContract {
   function deletePatient(uint patientId, bool isDeleted) external {
     if(patientToOwner[patientId] == msg.sender) {
       patients[patientId].isDeleted = isDeleted;
-      emit DeletePatient(patientId, isDeleted);
+      emit AddPatient(msg.sender, patientId, patients[patientId].firstName, patients[patientId].lastName, isDeleted, block.timestamp);
     }
   }
 }

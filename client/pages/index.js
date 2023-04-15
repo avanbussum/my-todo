@@ -5,6 +5,7 @@ import { PatientContractAddress } from '../config.js'
 import PatientAbi from '../../backend/build/contracts/PatientContract.json'
 import { ethers } from 'ethers'
 import { useState, useEffect } from 'react'
+
 /* 
 const patients = [
   { id: 0, patientText: 'clean', isDeleted: false }, 
@@ -102,10 +103,9 @@ export default function Home() {
            return inter.parseLog(log).args
         })
 
-        //let tester = awaitprovider.getLogs()
-        //console.log('testy',tester)
-
         setEventLog(parsedLogs)
+
+
         console.log('OFFICIAL LOGS:', parsedLogs)
         
         PatientContract.on("AddPatient", (recipient, patientId) => {
@@ -125,11 +125,13 @@ export default function Home() {
   const addPatient = async e => {
     e.preventDefault()
     getEvents()
+    
     let patient = {
       firstName: firstName,
       lastName: lastName,
-      isDeleted: false
+      isDeleted: false,
     }
+   
 
     try {
       const { ethereum } = window
@@ -186,7 +188,7 @@ export default function Home() {
   }
 
   return (
-    <div className='bg-[#97b5fe] h-screen w-screen flex justify-center py-6'>
+    <div className='bg-gray-100 h-fit w-screen flex justify-center py-12'>
       {!isUserLoggedIn ? <ConnectWalletButton connectWallet={connectWallet}/> :
         'is this the correct network?' ? <TodoList 
           patients={patients} 
@@ -196,6 +198,7 @@ export default function Home() {
           setLastName={setLastName} 
           addPatient={addPatient} 
           deletePatient={deletePatient}
+          eventLog={eventLog}
         /> : 
       <WrongNetworkMessage />}
     </div>

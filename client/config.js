@@ -1,1 +1,1 @@
-export const PatientContractAddress = '0x8722415FF22D61A3B3B3914C7A9A30393242a4ce'
+export const PatientContractAddress = '0xDc6cc02ef2A05653034a31bd67B9C03d67B30CcA'
